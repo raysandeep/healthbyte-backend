@@ -1,0 +1,706 @@
+{
+  "service": {
+    "service": "HealthByte-Lambda-Events",
+    "serviceObject": {
+      "name": "HealthByte-Lambda-Events"
+    },
+    "provider": {
+      "stage": "dev",
+      "variableSyntax": "\\${([^{}]+?)}",
+      "name": "aws",
+      "runtime": "java8",
+      "region": "ap-south-1",
+      "versionFunctions": true,
+      "remoteFunctionData": null,
+      "compiledCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "PresignUploadURLLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-presignUploadURL"
+            }
+          },
+          "GetSleepDataLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-getSleepData"
+            }
+          },
+          "GetAllUserDataLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-getAllUserData"
+            }
+          },
+          "DownloadResourceLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-downloadResource"
+            }
+          },
+          "GetUserDataLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-getUserData"
+            }
+          },
+          "AddUserLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-addUser"
+            }
+          },
+          "AddSleepDataAnlysisLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-addSleepDataAnlysis"
+            }
+          },
+          "GetSleepDataAnalysisLogGroup": {
+            "Type": "AWS::Logs::LogGroup",
+            "Properties": {
+              "LogGroupName": "/aws/lambda/HealthByte-Lambda-Events-dev-getSleepDataAnalysis"
+            }
+          },
+          "IamRoleLambdaExecution": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+              "AssumeRolePolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Effect": "Allow",
+                    "Principal": {
+                      "Service": [
+                        "lambda.amazonaws.com"
+                      ]
+                    },
+                    "Action": [
+                      "sts:AssumeRole"
+                    ]
+                  }
+                ]
+              },
+              "Policies": [
+                {
+                  "PolicyName": {
+                    "Fn::Join": [
+                      "-",
+                      [
+                        "HealthByte-Lambda-Events",
+                        "dev",
+                        "lambda"
+                      ]
+                    ]
+                  },
+                  "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:CreateLogStream",
+                          "logs:CreateLogGroup"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/HealthByte-Lambda-Events-dev*:*"
+                          }
+                        ]
+                      },
+                      {
+                        "Effect": "Allow",
+                        "Action": [
+                          "logs:PutLogEvents"
+                        ],
+                        "Resource": [
+                          {
+                            "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/HealthByte-Lambda-Events-dev*:*:*"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "Path": "/",
+              "RoleName": {
+                "Fn::Join": [
+                  "-",
+                  [
+                    "HealthByte-Lambda-Events",
+                    "dev",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    "lambdaRole"
+                  ]
+                ]
+              }
+            }
+          },
+          "PresignUploadURLLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-presignUploadURL",
+              "Handler": "service.App::getPresignedUrl",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "PresignUploadURLLogGroup"
+            ]
+          },
+          "PresignUploadURLLambdaVersionTXEKvo2M4wfpqmhJ9bHEpUMv9KnaMeFMd348XibLdw": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "PresignUploadURLLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "GetSleepDataLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-getSleepData",
+              "Handler": "service.App::getSleepData",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "GetSleepDataLogGroup"
+            ]
+          },
+          "GetSleepDataLambdaVersion18uvq99S2N58looa2eBLdFQLFgLCr4FdRAk20": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetSleepDataLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "GetAllUserDataLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-getAllUserData",
+              "Handler": "service.App::getAllUserData",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "GetAllUserDataLogGroup"
+            ]
+          },
+          "GetAllUserDataLambdaVersionRQJ4CBxUiYI6quncxPg7JXBYjL7SxxQOTDovnX1iE": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetAllUserDataLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "DownloadResourceLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-downloadResource",
+              "Handler": "service.App::handleRequest",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "DownloadResourceLogGroup"
+            ]
+          },
+          "DownloadResourceLambdaVersion4knSdye26FGBJB2s8NTU2y9TuMdkh9iVkwXYy4ZKkXQ": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "DownloadResourceLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "GetUserDataLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-getUserData",
+              "Handler": "service.App::getUserData",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "GetUserDataLogGroup"
+            ]
+          },
+          "GetUserDataLambdaVersionR5fLovbbpJsgFe6fxx7KLlfAxCZcDfdlT2ZBdKfEzg": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetUserDataLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "AddUserLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-addUser",
+              "Handler": "service.App::addUser",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "AddUserLogGroup"
+            ]
+          },
+          "AddUserLambdaVersionHW72lcOK9EDEHVYf6P8yoeWoNoQtD8hjfsFUgA9Z5Q": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AddUserLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "AddSleepDataAnlysisLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-addSleepDataAnlysis",
+              "Handler": "service.App::addSleepDataAnlysis",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "AddSleepDataAnlysisLogGroup"
+            ]
+          },
+          "AddSleepDataAnlysisLambdaVersionrogLtVDktAOPQFE8OgCWDtxN0oxytOxCzqW4YNZdQ8": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "AddSleepDataAnlysisLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          },
+          "GetSleepDataAnalysisLambdaFunction": {
+            "Type": "AWS::Lambda::Function",
+            "Properties": {
+              "Code": {
+                "S3Bucket": {
+                  "Ref": "ServerlessDeploymentBucket"
+                },
+                "S3Key": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z/target/LambdaEvents-1.0.jar"
+              },
+              "FunctionName": "HealthByte-Lambda-Events-dev-getSleepDataAnalysis",
+              "Handler": "service.App::getSleepDataAnalysis",
+              "MemorySize": 1024,
+              "Role": {
+                "Fn::GetAtt": [
+                  "IamRoleLambdaExecution",
+                  "Arn"
+                ]
+              },
+              "Runtime": "java8",
+              "Timeout": 6
+            },
+            "DependsOn": [
+              "GetSleepDataAnalysisLogGroup"
+            ]
+          },
+          "GetSleepDataAnalysisLambdaVersion5lGaq2vJyHKBcUV4FoFgq13NoNlFQMzg6PlZE4U": {
+            "Type": "AWS::Lambda::Version",
+            "DeletionPolicy": "Retain",
+            "Properties": {
+              "FunctionName": {
+                "Ref": "GetSleepDataAnalysisLambdaFunction"
+              },
+              "CodeSha256": "gQvVCOSJ/GOv/KIx+2zPr1Jnh1Iorkp4wRM60BLH98M="
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          },
+          "PresignUploadURLLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "PresignUploadURLLambdaVersionTXEKvo2M4wfpqmhJ9bHEpUMv9KnaMeFMd348XibLdw"
+            }
+          },
+          "GetSleepDataLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetSleepDataLambdaVersion18uvq99S2N58looa2eBLdFQLFgLCr4FdRAk20"
+            }
+          },
+          "GetAllUserDataLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetAllUserDataLambdaVersionRQJ4CBxUiYI6quncxPg7JXBYjL7SxxQOTDovnX1iE"
+            }
+          },
+          "DownloadResourceLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "DownloadResourceLambdaVersion4knSdye26FGBJB2s8NTU2y9TuMdkh9iVkwXYy4ZKkXQ"
+            }
+          },
+          "GetUserDataLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetUserDataLambdaVersionR5fLovbbpJsgFe6fxx7KLlfAxCZcDfdlT2ZBdKfEzg"
+            }
+          },
+          "AddUserLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AddUserLambdaVersionHW72lcOK9EDEHVYf6P8yoeWoNoQtD8hjfsFUgA9Z5Q"
+            }
+          },
+          "AddSleepDataAnlysisLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "AddSleepDataAnlysisLambdaVersionrogLtVDktAOPQFE8OgCWDtxN0oxytOxCzqW4YNZdQ8"
+            }
+          },
+          "GetSleepDataAnalysisLambdaFunctionQualifiedArn": {
+            "Description": "Current Lambda function version",
+            "Value": {
+              "Ref": "GetSleepDataAnalysisLambdaVersion5lGaq2vJyHKBcUV4FoFgq13NoNlFQMzg6PlZE4U"
+            }
+          }
+        }
+      },
+      "coreCloudFormationTemplate": {
+        "AWSTemplateFormatVersion": "2010-09-09",
+        "Description": "The AWS CloudFormation template for this Serverless application",
+        "Resources": {
+          "ServerlessDeploymentBucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+              "BucketEncryption": {
+                "ServerSideEncryptionConfiguration": [
+                  {
+                    "ServerSideEncryptionByDefault": {
+                      "SSEAlgorithm": "AES256"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "ServerlessDeploymentBucketPolicy": {
+            "Type": "AWS::S3::BucketPolicy",
+            "Properties": {
+              "Bucket": {
+                "Ref": "ServerlessDeploymentBucket"
+              },
+              "PolicyDocument": {
+                "Statement": [
+                  {
+                    "Action": "s3:*",
+                    "Effect": "Deny",
+                    "Principal": "*",
+                    "Resource": [
+                      {
+                        "Fn::Join": [
+                          "",
+                          [
+                            "arn:",
+                            {
+                              "Ref": "AWS::Partition"
+                            },
+                            ":s3:::",
+                            {
+                              "Ref": "ServerlessDeploymentBucket"
+                            },
+                            "/*"
+                          ]
+                        ]
+                      }
+                    ],
+                    "Condition": {
+                      "Bool": {
+                        "aws:SecureTransport": false
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "Outputs": {
+          "ServerlessDeploymentBucketName": {
+            "Value": {
+              "Ref": "ServerlessDeploymentBucket"
+            }
+          }
+        }
+      },
+      "vpc": {}
+    },
+    "plugins": [
+      "serverless-plugin-warmup"
+    ],
+    "pluginsData": {},
+    "functions": {
+      "presignUploadURL": {
+        "handler": "service.App::getPresignedUrl",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-presignUploadURL",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "PresignUploadURLLambdaVersionTXEKvo2M4wfpqmhJ9bHEpUMv9KnaMeFMd348XibLdw"
+      },
+      "getSleepData": {
+        "handler": "service.App::getSleepData",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-getSleepData",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "GetSleepDataLambdaVersion18uvq99S2N58looa2eBLdFQLFgLCr4FdRAk20"
+      },
+      "getAllUserData": {
+        "handler": "service.App::getAllUserData",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-getAllUserData",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "GetAllUserDataLambdaVersionRQJ4CBxUiYI6quncxPg7JXBYjL7SxxQOTDovnX1iE"
+      },
+      "downloadResource": {
+        "handler": "service.App::handleRequest",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-downloadResource",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "DownloadResourceLambdaVersion4knSdye26FGBJB2s8NTU2y9TuMdkh9iVkwXYy4ZKkXQ"
+      },
+      "getUserData": {
+        "handler": "service.App::getUserData",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-getUserData",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "GetUserDataLambdaVersionR5fLovbbpJsgFe6fxx7KLlfAxCZcDfdlT2ZBdKfEzg"
+      },
+      "addUser": {
+        "handler": "service.App::addUser",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-addUser",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "AddUserLambdaVersionHW72lcOK9EDEHVYf6P8yoeWoNoQtD8hjfsFUgA9Z5Q"
+      },
+      "addSleepDataAnlysis": {
+        "handler": "service.App::addSleepDataAnlysis",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-addSleepDataAnlysis",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "AddSleepDataAnlysisLambdaVersionrogLtVDktAOPQFE8OgCWDtxN0oxytOxCzqW4YNZdQ8"
+      },
+      "getSleepDataAnalysis": {
+        "handler": "service.App::getSleepDataAnalysis",
+        "events": [],
+        "name": "HealthByte-Lambda-Events-dev-getSleepDataAnalysis",
+        "package": {},
+        "memory": 1024,
+        "timeout": 6,
+        "runtime": "java8",
+        "vpc": {},
+        "versionLogicalId": "GetSleepDataAnalysisLambdaVersion5lGaq2vJyHKBcUV4FoFgq13NoNlFQMzg6PlZE4U"
+      }
+    },
+    "serviceFilename": "serverless.yaml",
+    "layers": {},
+    "isDashboardMonitoringPreconfigured": false
+  },
+  "package": {
+    "artifactDirectoryName": "serverless/HealthByte-Lambda-Events/dev/1601993485824-2020-10-06T14:11:25.824Z",
+    "artifact": "target/LambdaEvents-1.0.jar"
+  }
+}
